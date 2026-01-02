@@ -1,0 +1,33 @@
+Cola -- > Personal Project
+---------------------------
+
+A linux cli app for password generation and password management. 
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
