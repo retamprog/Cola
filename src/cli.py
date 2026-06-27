@@ -64,7 +64,33 @@ def init():
     init_vault(passwd)
 
 @click.command()
+def unlock():
+    ''' unlock the vault for a time period to add, edit, del  entries in the vault without repeated master_pass i/p '''
+    pass
+@click.command()
+def lock():
+    '''lock the vault manually or it will auto-lock itself out after the session times out  '''
+    pass
+@click.command(name = "add")
 def add_entry():
+    ''' Adding new entries to the vault'''
+    pass    
+@click.command(name="edit")
+def edit_entry():
+    '''Edit entries in the vault'''
+    pass
+    
+@click.command(name="get")
+def get_entry():
+    '''Get particular entry based on username'''
+    pass
+
+
+    
+
+@click.command(name="del")    
+def del_entry():
+    '''delete entries in the vault'''
     pass
 
 
@@ -74,6 +100,12 @@ def add_entry():
 
 cli.add_command(genpass)
 cli.add_command(init)
+cli.add_command(lock)
+cli.add_command(unlock)
+cli.add_command(add_entry)
+cli.add_command(edit_entry)
+cli.add_command(get_entry)
+cli.add_command(del_entry)
 
 if __name__=='__main__':
     cli()
