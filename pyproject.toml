@@ -1,0 +1,21 @@
+[project]
+name="Cola"
+version="0.0.1"
+description="Cola cli --> cli based password manager and password generator"
+requires-python = '>=3.11'
+dependencies =[
+    "click>=8.4.1",
+    "cryptography>=48.0.1",
+    "pyperclip>=1.11.0",
+    "pwinput>=1.0.3",
+]
+
+[project.scripts]
+cola = "cli:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
