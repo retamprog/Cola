@@ -1,5 +1,5 @@
 # from doctest import master
-import os
+# import os
 from pathlib import Path
 
 from crypto import decrypt_vault, encrypt_vault
