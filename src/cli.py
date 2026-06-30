@@ -66,7 +66,7 @@ def init():
 @click.command()
 def unlock():
     ''' unlock the vault for a time period to add, edit, del  entries in the vault without repeated master_pass i/p '''
-    pass
+    
 @click.command()
 def lock():
     '''lock the vault manually or it will auto-lock itself out after the session times out  '''
