@@ -1,102 +1,170 @@
-'''
-   Cola.cli
-   the cli application code for accessing the cola app
-   created using the click module for fast and transparent code.
-   CLICK - Command line interface creation kit
-   
-'''
-import click
+"""
+Cola.cli
+the cli application code for accessing the cola app
+created using the click module for fast and transparent code.
+CLICK - Command line interface creation kit
+
+"""
+
 import secrets
 import string
-from click.exceptions import ClickException
-import pyperclip
+
+import click
 import pwinput
+import pyperclip
+from click.exceptions import ClickException
+
+from sessions import check_session, delete_session, load_session, session_start
 from vault import (
-    init_vault,encrypt_vault,decrypt_vault,add_entry,
-    get_entry,delete_entry
+    add_entry,
+    decrypt_vault,
+    delete_entry,
+    encrypt_vault,
+    get_entry,
+    init_vault,
+    load_vault,
 )
+
 
 @click.group()
 def cli():
     pass
+
+
 # < ---------------------------------Password Generation-------------------------->
 @click.command()
-@click.option("-l","--length",type=click.INT,prompt="the length of the password generated",help="the length of the password generated",default=16)
-@click.option("-U","--upper",is_flag=True,help="whether the password should have uppercase letters")
-@click.option("-s","--spc",is_flag=True,help="whether the password should have special characters")
-@click.option("-e","--extra",type=click.STRING,prompt="any extra string you want to add ?",help="extra characters to be taken into account",default="")
-@click.option("-c","--copy",type=click.BOOL,prompt="want to copy to clipboard",help="copy pass to clipboard")
-def genpass(length:int,upper:bool,spc:bool,extra:str,copy:bool):
-    '''
-      custom random password generation
-    '''
-    pouch = string.digits+string.ascii_lowercase
+@click.option(
+    "-l",
+    "--length",
+    type=click.INT,
+    prompt="the length of the password generated",
+    help="the length of the password generated",
+    default=16,
+)
+@click.option(
+    "-U",
+    "--upper",
+    is_flag=True,
+    help="whether the password should have uppercase letters",
+)
+@click.option(
+    "-s",
+    "--spc",
+    is_flag=True,
+    help="whether the password should have special characters",
+)
+@click.option(
+    "-e",
+    "--extra",
+    type=click.STRING,
+    prompt="any extra string you want to add ?",
+    help="extra characters to be taken into account",
+    default="",
+)
+@click.option(
+    "-c",
+    "--copy",
+    type=click.BOOL,
+    prompt="want to copy to clipboard",
+    help="copy pass to clipboard",
+)
+def genpass(length: int, upper: bool, spc: bool, extra: str, copy: bool):
+    """
+    custom random password generation
+    """
+    pouch = string.digits + string.ascii_lowercase
     if upper:
-        pouch+=string.ascii_uppercase
+        pouch += string.ascii_uppercase
     if spc:
-        pouch+=string.punctuation
-    if len(extra)!=0:
-        pouch+=extra
-        
-    output = ''.join([secrets.choice(pouch) for _ in range(length)])
+        pouch += string.punctuation
+    if len(extra) != 0:
+        pouch += extra
+
+    output = "".join([secrets.choice(pouch) for _ in range(length)])
     if copy:
         pyperclip.copy(output)
     else:
-        click.secho(output,fg="black",bg="white")
-    
-#<------------------------Password Management-------------------------------------> 
-'''
+        click.secho(output, fg="black", bg="white")
+
+
+# <------------------------Password Management------------------------------------->
+"""
 I am going to create a masked password prompter so that i will get that asterisk kind off feeling when i type the passwd makes it easy for me and i kind of like it !!!!
 
-'''
-def masked_prompt(prompt:str):
+"""
+
+
+# utility function ----->
+def masked_prompt(prompt: str):
     return pwinput.pwinput(prompt=prompt)
+
+
+def get_masterpass():
+    return load_session() is not None # needs to be changed
+
+
+# -----------------------------
 @click.command()
 def init():
-    ''' Vault initialization command for vault creation'''
+    """Vault initialization command for vault creation"""
     passwd = masked_prompt("Enter the master pass: ")
     confirm = masked_prompt("Renter the pass: ")
-    if passwd!=confirm:
+    if passwd != confirm:
         raise click.ClickException("Passwords do not match !! please try again.")
     if len(passwd) < 8:
         raise click.ClickException("Password length must be minimum 8 characters. ")
 
     init_vault(passwd)
 
+
 @click.command()
 def unlock():
-    ''' unlock the vault for a time period to add, edit, del  entries in the vault without repeated master_pass i/p '''
-    
+    """unlock the vault for a time period to add, edit, del  entries in the vault without repeated master_pass i/p"""
+    passwd = masked_prompt("Enter the master pass ")
+    # after that check it for validity by loading the vault with the pass
+    try:
+        if load_vault(passwd):
+            session_start(passwd)
+            print("Vault unlocked successfully!!")
+    except Exception:
+        print("Master pass not correct!!")
+
+
 @click.command()
 def lock():
-    '''lock the vault manually or it will auto-lock itself out after the session times out  '''
-    pass
-@click.command(name = "add")
+    """lock the vault manually or it will auto-lock itself out after the session times out"""
+    passwd = masked_prompt("Enter the master pass ")
+    try:
+        if load_vault(passwd):
+            delete_session()
+            print("Vault locked successfully!!")
+    except Exception:
+        print("Master pass not correct!!")
+
+
+@click.command(name="add")
 def add_entry():
-    ''' Adding new entries to the vault'''
-    pass    
+    """Adding new entries to the vault"""
+    pass
+
+
 @click.command(name="edit")
 def edit_entry():
-    '''Edit entries in the vault'''
+    """Edit entries in the vault"""
     pass
-    
+
+
 @click.command(name="get")
 def get_entry():
-    '''Get particular entry based on username'''
+    """Get particular entry based on username"""
     pass
 
 
-    
-
-@click.command(name="del")    
+@click.command(name="del")
 def del_entry():
-    '''delete entries in the vault'''
+    """delete entries in the vault"""
     pass
 
-
-    
-    
-        
 
 cli.add_command(genpass)
 cli.add_command(init)
@@ -107,5 +175,5 @@ cli.add_command(edit_entry)
 cli.add_command(get_entry)
 cli.add_command(del_entry)
 
-if __name__=='__main__':
+if __name__ == "__main__":
     cli()
