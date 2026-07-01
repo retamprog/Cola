@@ -84,6 +84,7 @@ def delete_session()->bool:
     session_file = _session_path()
     if session_file.exists():
         session_file.unlink()
+        print("Session deleted successfully!!")
         return True
     return False    
     
@@ -92,9 +93,11 @@ def check_session()->bool:
     return load_session() is not None
 
 if __name__=='__main__':
+    pass
     # print(get_session_key())
     # session_start("retam112004")
     # print(session_start("retam112004"))
     # print(load_session())
-    print(delete_session())
+    # print(delete_session())
+    print(check_session())
         

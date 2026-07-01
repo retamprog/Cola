@@ -100,7 +100,13 @@ def masked_prompt(prompt: str):
 
 
 def get_masterpass():
-    return load_session() is not None # needs to be changed
+    # the function to get master pass from the stored session file or to prompt the pass if session expired
+    master = load_session()
+    if master is None:
+        # the session has ended prompt the user for master_pass
+        return masked_prompt("Enter the master pass: ")
+    return master    
+        
 
 
 # -----------------------------
@@ -121,9 +127,12 @@ def init():
 def unlock():
     """unlock the vault for a time period to add, edit, del  entries in the vault without repeated master_pass i/p"""
     passwd = masked_prompt("Enter the master pass ")
+    # print("hello")
     # after that check it for validity by loading the vault with the pass
+    print(load_vault(passwd))
     try:
         if load_vault(passwd):
+            print("hello!!")
             session_start(passwd)
             print("Vault unlocked successfully!!")
     except Exception:
@@ -142,10 +151,22 @@ def lock():
         print("Master pass not correct!!")
 
 
-@click.command(name="add")
-def add_entry():
+@click.command()
+@click.option("-n","--name",type=click.STRING,prompt = "The name of the entry",help="the name of the entry you are adding to the vault")
+@click.option("-u","--username",type=click.STRING,prompt = "The username of the entry",help="the username of the entry you are adding to the vault",default="username")
+@click.option("--url","-ul",type=click.STRING,prompt="The url of the entry",help = "the url of the entry",default="")
+def add(name:str,username:str,url:str):
     """Adding new entries to the vault"""
-    pass
+    # entry pass we will take it from the masked prompt
+    passwd=""
+    while True:
+        passwd = masked_prompt("Enter the pass for the above entry : ")
+        repass = masked_prompt("Renter the pass :")
+        if passwd == repass:
+            break
+            
+    master = get_masterpass()
+    add_entry(master,name,username,passwd,url)
 
 
 @click.command(name="edit")
@@ -170,10 +191,11 @@ cli.add_command(genpass)
 cli.add_command(init)
 cli.add_command(lock)
 cli.add_command(unlock)
-cli.add_command(add_entry)
+cli.add_command(add)
 cli.add_command(edit_entry)
 cli.add_command(get_entry)
 cli.add_command(del_entry)
 
 if __name__ == "__main__":
     cli()
+    
