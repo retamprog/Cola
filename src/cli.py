@@ -189,7 +189,7 @@ def add(name: str, username: str, url: str):
     master = get_masterpass()
     add_entry(master, name, username, passwd, url)
 
-
+## needs finishing and thinking @@@
 @click.command(name="edit")
 def edit_entry():
     """Edit entries in the vault"""
@@ -226,7 +226,7 @@ def get(name: str, username: str, list: bool):
         return
     print(json.dumps(get_entry(master, name, username), indent=4))
 
-
+# might make it multipurpose giving user options as to delete the whole entry name or just particular username entries
 @click.command(name="del")
 def del_entry():
     """delete entries in the vault"""
