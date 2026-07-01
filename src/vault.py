@@ -44,11 +44,17 @@ def add_entry(master_pass: str, name: str, username: str, password: str, url: st
     vault["Entries"][name.lower()].append({"username":username,"password":password,"url":url})
     save_vault(master_pass, vault)
 
-
-def get_entry(master_pass: str, name: str):
+# two parts of the function one is getting the element based on name and other one is based on 
+def get_entry(master_pass: str, name: str,username:str=""):
     # vault = load_vault(master_pass = master_pass)
-    return load_vault(master_pass).get(name)
-
+    vault =  load_vault(master_pass)
+    if username:
+        return next((d for d in vault["Entries"][name] if d["username"]==username),None)
+    else:
+        return vault["Entries"][name]
+    
+        
+    
 
 def delete_entry(master_pass: str, name: str):
     vault = load_vault(master_pass)

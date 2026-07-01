@@ -6,6 +6,8 @@ CLICK - Command line interface creation kit
 
 """
 
+# import pprint
+import json
 import secrets
 import string
 
@@ -105,8 +107,7 @@ def get_masterpass():
     if master is None:
         # the session has ended prompt the user for master_pass
         return masked_prompt("Enter the master pass: ")
-    return master    
-        
+    return master
 
 
 # -----------------------------
@@ -129,7 +130,7 @@ def unlock():
     passwd = masked_prompt("Enter the master pass ")
     # print("hello")
     # after that check it for validity by loading the vault with the pass
-    print(load_vault(passwd))
+    # print(load_vault(passwd))
     try:
         if load_vault(passwd):
             print("hello!!")
@@ -152,21 +153,41 @@ def lock():
 
 
 @click.command()
-@click.option("-n","--name",type=click.STRING,prompt = "The name of the entry",help="the name of the entry you are adding to the vault")
-@click.option("-u","--username",type=click.STRING,prompt = "The username of the entry",help="the username of the entry you are adding to the vault",default="username")
-@click.option("--url","-ul",type=click.STRING,prompt="The url of the entry",help = "the url of the entry",default="")
-def add(name:str,username:str,url:str):
+@click.option(
+    "-n",
+    "--name",
+    type=click.STRING,
+    prompt="The name of the entry",
+    help="the name of the entry you are adding to the vault",
+)
+@click.option(
+    "-u",
+    "--username",
+    type=click.STRING,
+    prompt="The username of the entry",
+    help="the username of the entry you are adding to the vault",
+    default="username",
+)
+@click.option(
+    "--url",
+    "-ul",
+    type=click.STRING,
+    prompt="The url of the entry",
+    help="the url of the entry",
+    default="",
+)
+def add(name: str, username: str, url: str):
     """Adding new entries to the vault"""
     # entry pass we will take it from the masked prompt
-    passwd=""
+    passwd = ""
     while True:
         passwd = masked_prompt("Enter the pass for the above entry : ")
         repass = masked_prompt("Renter the pass :")
         if passwd == repass:
             break
-            
+
     master = get_masterpass()
-    add_entry(master,name,username,passwd,url)
+    add_entry(master, name, username, passwd, url)
 
 
 @click.command(name="edit")
@@ -176,9 +197,34 @@ def edit_entry():
 
 
 @click.command(name="get")
-def get_entry():
+@click.option(
+    "-n",
+    "--name",
+    type=click.STRING,
+    help="the name of the entry to get info about"
+)
+@click.option(
+    "-u",
+    "--username",
+    type=click.STRING,
+    help="the username of the entry to get info about"
+)
+@click.option("--list", is_flag=True, help="the list of the entries in the vault")
+def get(name: str, username: str, list: bool):
     """Get particular entry based on username"""
-    pass
+    master = get_masterpass()
+    if list:
+        print(json.dumps(load_vault(master), indent=4))
+
+    if not name:
+        name = click.prompt("Enter the name you want to get ")
+    if not username:
+        username = click.prompt("Enter the username you want to get ",default="",show_default=False)
+
+    if not get_entry(master, name, username):
+        print("wrong name or username !!")
+        return
+    print(json.dumps(get_entry(master, name, username), indent=4))
 
 
 @click.command(name="del")
@@ -193,9 +239,8 @@ cli.add_command(lock)
 cli.add_command(unlock)
 cli.add_command(add)
 cli.add_command(edit_entry)
-cli.add_command(get_entry)
+cli.add_command(get)
 cli.add_command(del_entry)
 
 if __name__ == "__main__":
     cli()
-    
