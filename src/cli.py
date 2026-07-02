@@ -10,12 +10,13 @@ CLICK - Command line interface creation kit
 import json
 import secrets
 import string
-
+import tempfile
 import click
 import pwinput
 import pyperclip
 from click.exceptions import ClickException
-
+import os
+import subprocess
 from sessions import check_session, delete_session, load_session, session_start
 from vault import (
     add_entry,
@@ -109,8 +110,9 @@ def get_masterpass():
         return masked_prompt("Enter the master pass: ")
     return master
 
-
-# -----------------------------
+def get_editor():
+    return os.environ.get("EDITOR","nano")
+# ---------------------------------------------------------------------------------------------------------------
 @click.command()
 def init():
     """Vault initialization command for vault creation"""
@@ -191,9 +193,23 @@ def add(name: str, username: str, url: str):
 
 ## needs finishing and thinking @@@
 @click.command(name="edit")
-def edit_entry():
+@click.option("-n","--name",type = click.STRING,prompt="Enter the name of the entry",help="the name of the entry to edit")
+@click.option("-u","--username",type=click.STRING,prompt="Enter the username of the entry",help = "the username of the entry to edit")
+def edit_entry(name:str,username:str):
     """Edit entries in the vault"""
-    pass
+    master = get_masterpass()
+    # okay for this lets say i get the target dict for editing purposes
+    d = get_entry(master,name,username)
+    with tempfile.NamedTemporaryFile(mode = "w+",delete=True,suffix='.txt',encoding='utf-8') as fp:
+        # fp.write()
+        fp.flush() # push the write data from python RAM cache to real disk storage 
+        # so that it can be read by external editor
+        subprocess.run([get_editor(),fp.name])
+        fp.seek(0)
+        
+        
+        
+        
 
 
 @click.command(name="get")
