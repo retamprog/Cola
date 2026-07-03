@@ -26,6 +26,7 @@ from vault import (
     get_entry,
     init_vault,
     load_vault,
+    save_vault,
 )
 
 
@@ -192,24 +193,44 @@ def add(name: str, username: str, url: str):
     add_entry(master, name, username, passwd, url)
 
 ## needs finishing and thinking @@@
+# # cant seem to figure you out !!!! Fuck you!!!!!!!!!!! 
 @click.command(name="edit")
-@click.option("-n","--name",type = click.STRING,prompt="Enter the name of the entry",help="the name of the entry to edit")
-@click.option("-u","--username",type=click.STRING,prompt="Enter the username of the entry",help = "the username of the entry to edit")
+@click.option("-n","--name",type = click.STRING,default="",help="the name of the entry to edit")
+@click.option("-u","--username",type=click.STRING,default="",help = "the username of the entry to edit")
 def edit_entry(name:str,username:str):
     """Edit entries in the vault"""
     master = get_masterpass()
     # okay for this lets say i get the target dict for editing purposes
-    d = get_entry(master,name,username)
+    vault = load_vault(master)
+    if username or name: 
+        d = get_entry(master,name,username)
+    else:
+        d = vault['Entries']
     with tempfile.NamedTemporaryFile(mode = "w+",delete=True,suffix='.txt',encoding='utf-8') as fp:
-        # fp.write()
+        fp.write(json.dumps(d,indent=4))
         fp.flush() # push the write data from python RAM cache to real disk storage 
         # so that it can be read by external editor
         subprocess.run([get_editor(),fp.name])
         fp.seek(0)
-        
-        
-        
-        
+        extracted_data = json.loads(fp.read())
+        # print("data extraction completed")
+    
+    print(extracted_data)
+    
+    if not username and not name:
+        vault["Entries"]=extracted_data
+        save_vault(master,vault)
+        return
+    if not username:
+        # the username field is empty meaning only name field is given then
+        vault["Entries"][name]=extracted_data
+        save_vault(master,vault)
+        return 
+    else:
+        index=next((i  for i,d in enumerate(vault["Entries"][name]) if d["username"]==username),None)
+        vault["Entries"][name][index]=extracted_data
+        save_vault(master,vault)
+        return 
 
 
 @click.command(name="get")
@@ -217,12 +238,14 @@ def edit_entry(name:str,username:str):
     "-n",
     "--name",
     type=click.STRING,
+    default="",
     help="the name of the entry to get info about"
 )
 @click.option(
     "-u",
     "--username",
     type=click.STRING,
+    default="",
     help="the username of the entry to get info about"
 )
 @click.option("--list", is_flag=True, help="the list of the entries in the vault")
@@ -231,11 +254,7 @@ def get(name: str, username: str, list: bool):
     master = get_masterpass()
     if list:
         print(json.dumps(load_vault(master), indent=4))
-
-    if not name:
-        name = click.prompt("Enter the name you want to get ")
-    if not username:
-        username = click.prompt("Enter the username you want to get ",default="",show_default=False)
+        return 
 
     if not get_entry(master, name, username):
         print("wrong name or username !!")
@@ -246,7 +265,7 @@ def get(name: str, username: str, list: bool):
 @click.command(name="del")
 def del_entry():
     """delete entries in the vault"""
-    pass
+    
 
 
 cli.add_command(genpass)

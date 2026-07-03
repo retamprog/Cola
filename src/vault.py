@@ -86,5 +86,6 @@ if __name__ == "__main__":
     # del_vault()
     # pass
     # print(generate_pass(8,True,"l",False,"retam"))
-    pprint.pprint(load_vault("retam2004"),sort_dicts=False)
+    # pprint.pprint(load_vault("retam2004"),sort_dicts=False)
     # pass
+    get_entry("retam2004","gmail")
