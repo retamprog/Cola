@@ -48,6 +48,8 @@ def add_entry(master_pass: str, name: str, username: str, password: str, url: st
 def get_entry(master_pass: str, name: str,username:str=""):
     # vault = load_vault(master_pass = master_pass)
     vault =  load_vault(master_pass)
+    if not username and not name:
+        return vault["Entries"]
     if username:
         return next((d for d in vault["Entries"][name] if d["username"]==username),None)
     else:

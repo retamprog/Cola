@@ -202,10 +202,7 @@ def edit_entry(name:str,username:str):
     master = get_masterpass()
     # okay for this lets say i get the target dict for editing purposes
     vault = load_vault(master)
-    if username or name: 
-        d = get_entry(master,name,username)
-    else:
-        d = vault['Entries']
+    d = get_entry(master,name,username)
     with tempfile.NamedTemporaryFile(mode = "w+",delete=True,suffix='.txt',encoding='utf-8') as fp:
         fp.write(json.dumps(d,indent=4))
         fp.flush() # push the write data from python RAM cache to real disk storage 
@@ -215,22 +212,23 @@ def edit_entry(name:str,username:str):
         extracted_data = json.loads(fp.read())
         # print("data extraction completed")
     
-    print(extracted_data)
+    # print(extracted_data)
     
     if not username and not name:
         vault["Entries"]=extracted_data
         save_vault(master,vault)
         return
-    if not username:
+    elif username:
+        index=next((i  for i,d in enumerate(vault["Entries"][name]) if d["username"]==username),None)
+        vault["Entries"][name][index]=extracted_data
+        save_vault(master,vault)
+        return
+    else:
         # the username field is empty meaning only name field is given then
         vault["Entries"][name]=extracted_data
         save_vault(master,vault)
         return 
-    else:
-        index=next((i  for i,d in enumerate(vault["Entries"][name]) if d["username"]==username),None)
-        vault["Entries"][name][index]=extracted_data
-        save_vault(master,vault)
-        return 
+        
 
 
 @click.command(name="get")
@@ -263,8 +261,11 @@ def get(name: str, username: str, list: bool):
 
 # might make it multipurpose giving user options as to delete the whole entry name or just particular username entries
 @click.command(name="del")
-def del_entry():
+@click.option("-n","--name",help="the name of the entry to be deleted",default="")
+def del_entry(name:str,username:str):
     """delete entries in the vault"""
+    # okay now you will be created sorry for the late work
+    
     
 
 
