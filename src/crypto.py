@@ -41,7 +41,8 @@ def decrypt_vault(master_pass:str,blob:bytes):
         plaintext = aesgcm.decrypt(nonce,enc_data,None)
         return json.loads(plaintext)
     except (InvalidTag,ValueError):
-        raise ValueError("wrong password or corrupted vault!!")
+        print("wrong password or corrupted vault!!")
+        
     
 
 if __name__ == '__main__':

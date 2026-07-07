@@ -216,19 +216,15 @@ def edit_entry(name:str,username:str):
     
     if not username and not name:
         vault["Entries"]=extracted_data
-        save_vault(master,vault)
-        return
     elif username:
         index=next((i  for i,d in enumerate(vault["Entries"][name]) if d["username"]==username),None)
         vault["Entries"][name][index]=extracted_data
-        save_vault(master,vault)
-        return
     else:
         # the username field is empty meaning only name field is given then
         vault["Entries"][name]=extracted_data
-        save_vault(master,vault)
-        return 
         
+  
+    save_vault(master,vault)    
 
 
 @click.command(name="get")
@@ -253,18 +249,29 @@ def get(name: str, username: str, list: bool):
     if list:
         print(json.dumps(load_vault(master), indent=4))
         return 
-
-    if not get_entry(master, name, username):
-        print("wrong name or username !!")
+    if not username and not name:
+        click.echo("no username no name then use the --list option!!!")
         return
+
     print(json.dumps(get_entry(master, name, username), indent=4))
 
 # might make it multipurpose giving user options as to delete the whole entry name or just particular username entries
 @click.command(name="del")
-@click.option("-n","--name",help="the name of the entry to be deleted",default="")
+@click.option("-n","--name",help="the name of the entry to be deleted",required=True)
+@click.option("-u","--username",help="the username of the entry to be deleted",default="")
 def del_entry(name:str,username:str):
     """delete entries in the vault"""
     # okay now you will be created sorry for the late work
+    # total deletion of vault data not allowed
+    master = get_masterpass()
+    vault = load_vault(master)
+    if get_entry(master,name,username):
+        inp = click.prompt("are you sure you want to delete (y/n) ")
+        if inp.lower == 'y':
+            if username and name:
+                vault["Entries"][name][username]=''
+        
+    pass
     
     
 

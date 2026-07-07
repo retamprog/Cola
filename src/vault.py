@@ -50,18 +50,19 @@ def get_entry(master_pass: str, name: str,username:str=""):
     vault =  load_vault(master_pass)
     if not username and not name:
         return vault["Entries"]
-    if username:
-        return next((d for d in vault["Entries"][name] if d["username"]==username),None)
-    else:
-        return vault["Entries"][name]
-    
+    try:    
+        if username:
+            return next((d for d in vault["Entries"][name] if d["username"]==username),None)
+        else:
+            return vault["Entries"][name]
+    except Exception as e:
+        print("Error in name or username please try again!!")
         
     
 
 def delete_entry(master_pass: str, name: str):
     vault = load_vault(master_pass)
-    vault.pop(name)
-    save_vault(master_pass, vault)
+    pass
 
 
 def del_vault():
