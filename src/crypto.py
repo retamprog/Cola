@@ -20,10 +20,10 @@ def derive_key(master_pass:str,salt:bytes):
 
 def encrypt_vault(master_pass:str,data:dict):
     salt = os.urandom(16)
-    print("this is the salt " ,salt)
+    # print("this is the salt " ,salt)
     key = derive_key(master_pass,salt)
     nonce = os.urandom(12)
-    print("This is the nonce ",nonce)
+    # print("This is the nonce ",nonce)
     aesgcm = AESGCM(key)
     plaintext = json.dumps(data).encode()
     ciphertext = aesgcm.encrypt(nonce,plaintext,None)

@@ -12,6 +12,7 @@ import secrets
 import string
 import tempfile
 import click
+from click.types import FileInfoDict
 import pwinput
 import pyperclip
 from click.exceptions import ClickException
@@ -20,9 +21,7 @@ import subprocess
 from sessions import check_session, delete_session, load_session, session_start
 from vault import (
     add_entry,
-    decrypt_vault,
     delete_entry,
-    encrypt_vault,
     get_entry,
     init_vault,
     load_vault,
@@ -98,7 +97,7 @@ I am going to create a masked password prompter so that i will get that asterisk
 """
 
 
-# utility function ----->
+# utility functions -------------------------------------------------------------------------------------------->
 def masked_prompt(prompt: str):
     return pwinput.pwinput(prompt=prompt)
 
@@ -136,11 +135,11 @@ def unlock():
     # print(load_vault(passwd))
     try:
         if load_vault(passwd):
-            print("hello!!")
+            # print("hello!!")
             session_start(passwd)
             print("Vault unlocked successfully!!")
-    except Exception:
-        print("Master pass not correct!!")
+    except Exception as e:
+        print(e)
 
 
 @click.command()
@@ -151,8 +150,8 @@ def lock():
         if load_vault(passwd):
             delete_session()
             print("Vault locked successfully!!")
-    except Exception:
-        print("Master pass not correct!!")
+    except Exception as e:
+        print(e)
 
 
 @click.command()
@@ -201,7 +200,11 @@ def edit_entry(name:str,username:str):
     """Edit entries in the vault"""
     master = get_masterpass()
     # okay for this lets say i get the target dict for editing purposes
-    vault = load_vault(master)
+    try:
+        vault = load_vault(master)
+    except (FileNotFoundError,ValueError) as e:
+        print(e)
+        return 
     d = get_entry(master,name,username)
     with tempfile.NamedTemporaryFile(mode = "w+",delete=True,suffix='.txt',encoding='utf-8') as fp:
         fp.write(json.dumps(d,indent=4))
@@ -246,6 +249,12 @@ def edit_entry(name:str,username:str):
 def get(name: str, username: str, list: bool):
     """Get particular entry based on username"""
     master = get_masterpass()
+    try:
+        load_vault(master)
+    except (FileNotFoundError,ValueError) as e:
+        print(e)
+        return
+    
     if list:
         print(json.dumps(load_vault(master), indent=4))
         return 
@@ -254,6 +263,7 @@ def get(name: str, username: str, list: bool):
     else:
         click.echo("no username no name then use the --list option!!!")
         return
+
 
 
 # might make it multipurpose giving user options as to delete the whole entry name or just particular username entries
@@ -265,14 +275,12 @@ def del_entry(name:str,username:str):
     # okay now you will be created sorry for the late work
     # total deletion of vault data not allowed
     master = get_masterpass()
-    vault = load_vault(master)
-    if get_entry(master,name,username):
-        inp = click.prompt("are you sure you want to delete (y/n) ")
-        if inp.lower == 'y':
-            if username and name:
-                vault["Entries"][name][username]=''
-        
-    pass
+    try:
+        vault = load_vault(master)
+    except (FileNotFoundError,ValueError) as e:
+        print(e)
+        return
+    delete_entry(master,name,username,vault)    
     
     
 

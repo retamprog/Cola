@@ -36,19 +36,28 @@ def load_vault(master_pass: str):
    
 # okay need to change this add_entry function for better password management
 def add_entry(master_pass: str, name: str, username: str, password: str, url: str = ""):
-    vault = load_vault(
-        master_pass=master_pass
-    )  # this gives the entire python dict data
+    try:
+        vault = load_vault(
+            master_pass=master_pass
+        )  # this gives the entire python dict data
+    except (FileNotFoundError,ValueError) as e:
+        print(e)
+        return
     # vault.update({"Name":name,"Username": username, "Password": password, "url": url
     if name not in vault["Entries"]:
         vault["Entries"][name.lower()]=[]
     vault["Entries"][name.lower()].append({"username":username,"password":password,"url":url})
     save_vault(master_pass, vault)
 
-# two parts of the function one is getting the element based on name and other one is based on 
+# two parts of the function one is getting the element based on name and other one is username
 def get_entry(master_pass: str, name: str,username:str=""):
     # vault = load_vault(master_pass = master_pass)
-    vault =  load_vault(master_pass)
+    try:
+        vault =  load_vault(master_pass)
+    except (FileNotFoundError,ValueError) as e:
+        print(e)
+        return
+        
     if not username and not name:
         return vault["Entries"]
     try:    
@@ -56,15 +65,24 @@ def get_entry(master_pass: str, name: str,username:str=""):
             return next((d for d in vault["Entries"][name] if d["username"]==username),None)
         else:
             return vault["Entries"][name]
-    except Exception as e:
+    except Exception:
         print("Error in name or username please try again!!")
         
     
+# now the chance has come to complete this mess of the delete function!!
 
-def delete_entry(master_pass: str, name: str):
-    vault = load_vault(master_pass)
-    pass
-
+def delete_entry(master_pass: str, name: str,username:str,vault:dict):
+    try:
+        if username and name:
+            #that means both username and name have been provided
+            idx = next((i for i,d in enumerate(vault["Entries"][name]) if d["username"]==username))
+            vault["Entries"][name].pop(idx)
+        elif name:
+            del vault["Entries"][name]
+        save_vault(master_pass,vault)    
+    except Exception as e:
+        print("Error in username or name!!!")
+            
 
 def del_vault():
     try:
