@@ -1,6 +1,6 @@
 # from doctest import master
 # import os
-import pprint
+
 from pathlib import Path
 import getpass 
 import datetime
@@ -80,7 +80,7 @@ def delete_entry(master_pass: str, name: str,username:str,vault:dict):
         elif name:
             del vault["Entries"][name]
         save_vault(master_pass,vault)    
-    except Exception as e:
+    except Exception :
         print("Error in username or name!!!")
             
 

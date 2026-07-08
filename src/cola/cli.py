@@ -18,7 +18,7 @@ import pyperclip
 from click.exceptions import ClickException
 import os
 import subprocess
-from sessions import check_session, delete_session, load_session, session_start
+from sessions import delete_session, load_session, session_start
 from vault import (
     add_entry,
     delete_entry,
