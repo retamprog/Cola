@@ -31,8 +31,9 @@ def load_vault(master_pass: str):
         raise FileNotFoundError(
             "The vault does not exist !! use init cmd to create vault --> cola init"
         )
+    
     return decrypt_vault(master_pass=master_pass, blob=VAULT_PATH.read_bytes())
-
+   
 # okay need to change this add_entry function for better password management
 def add_entry(master_pass: str, name: str, username: str, password: str, url: str = ""):
     vault = load_vault(

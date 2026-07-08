@@ -249,11 +249,12 @@ def get(name: str, username: str, list: bool):
     if list:
         print(json.dumps(load_vault(master), indent=4))
         return 
-    if not username and not name:
+    if  username and  name:
+        print(json.dumps(get_entry(master, name, username), indent=4))
+    else:
         click.echo("no username no name then use the --list option!!!")
         return
 
-    print(json.dumps(get_entry(master, name, username), indent=4))
 
 # might make it multipurpose giving user options as to delete the whole entry name or just particular username entries
 @click.command(name="del")
