@@ -4,7 +4,7 @@
 from pathlib import Path
 import getpass 
 import datetime
-from crypto import decrypt_vault, encrypt_vault
+from .crypto import decrypt_vault, encrypt_vault
 
 VAULT_PATH = Path.home() / ".cola" / "vault.enc"
 

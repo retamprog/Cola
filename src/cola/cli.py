@@ -12,14 +12,14 @@ import secrets
 import string
 import tempfile
 import click
-from click.types import FileInfoDict
+# from click.types import FileInfoDict
 import pwinput
 import pyperclip
-from click.exceptions import ClickException
+# from click.exceptions import ClickException
 import os
 import subprocess
-from sessions import delete_session, load_session, session_start
-from vault import (
+from .sessions import delete_session, load_session, session_start
+from .vault import (
     add_entry,
     delete_entry,
     get_entry,
@@ -254,12 +254,13 @@ def get(name: str, username: str, list: bool):
     except (FileNotFoundError,ValueError) as e:
         print(e)
         return
+    # forgot to do the name option 
     
     if list:
         print(json.dumps(load_vault(master), indent=4))
         return 
-    if  username and  name:
-        print(json.dumps(get_entry(master, name, username), indent=4))
+    if  username or name:
+        print(json.dumps(get_entry(master, name, username), indent=4))        
     else:
         click.echo("no username no name then use the --list option!!!")
         return

@@ -11,7 +11,7 @@ dependencies =[
 ]
 
 [project.scripts]
-cola = "cli:cli"
+cola = "cola.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["src"]
